@@ -5,7 +5,7 @@ def omnoiglot_get_weights():
     shapes = []
     weights = []
 
-    filepath = "pretrained_omniglot_openai"
+    filepath = "pretrained_models/openai/pretrained_omniglot_openai"
     with open(filepath) as fp:
         for line in fp:
             try:

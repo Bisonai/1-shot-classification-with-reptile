@@ -11,9 +11,6 @@ def main(args):
 
     X_train, y_train = parse_train_data(args.data_path)
 
-    print(X_train.shape)
-    print(y_train.shape)
-
     model = omniglot(input_shape=X_train.shape[1:], num_classes=y_train.shape[1])
 
     if args.pretrained_model == True:
@@ -40,12 +37,13 @@ def main(args):
 
     tf.keras.models.save_model(model, "fine_tuned_model", include_optimizer=True)
 
+    print(model.predict(X_train))
     if args.predict == True:
         X_predict = parse_predict_data(args.data_path)
-        result = model.predict(X_predict)
+        result = model.predict(X_predict)[0]
         return result
 
-if __name__ == "__train__":
+if __name__ == "__main__":
     parser = ArgumentParser()
 
     parser.add_argument("--data_path", type=str, default='data')
@@ -54,7 +52,7 @@ if __name__ == "__train__":
 
     parser.add_argument("--learning_rate", type=float, default=0.01)
     parser.add_argument("--batch_size", type=int, default=3)
-    parser.add_argument("--epochs", type=int, default=30)
+    parser.add_argument("--epochs", type=int, default=50)
 
     args = parser.parse_args()
     main(args)
