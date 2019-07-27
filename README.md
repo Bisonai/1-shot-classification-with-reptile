@@ -5,7 +5,7 @@
 
 In this demo we are interested do to a 1-shot classification. To do so, we fine tune a pre-trained model that was trained with [Reptile](https://arxiv.org/abs/1803.02999). In this example, there are three classes with one example for each. Moreover, we are interested to predict the class of an additional image.
 
-This demo is available in [jupyter notebook](https://github.com/adelshb/fine-tuning-for-reptile/blob/master/demo.ipynb) format. The images are from this [blogpost](https://openai.com/blog/reptile/) from [OpenAI](https://openai.com).
+This demo is available in a [jupyter notebook](https://github.com/adelshb/fine-tuning-for-reptile/blob/master/demo.ipynb) format. The images are from this [blogpost](https://openai.com/blog/reptile/) from [OpenAI](https://openai.com).
 
 ### New classes
 

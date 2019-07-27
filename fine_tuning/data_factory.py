@@ -22,7 +22,7 @@ def parse_train_data(path,
             y.append(int(re.search('class-(.*)-num', str(path_file)).group(1)))
 
     X = np.array(X)
-    y = to_categorical(np.array(y),num_classes=3)
+    y = np.array(y)
 
     if  normalization == True:
         min = -1
