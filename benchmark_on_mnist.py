@@ -1,88 +1,91 @@
-from fine_tuning.pretrained_models.bisonai.models import OmniglotModelBisonai
 import tensorflow as tf
+tf.logging.set_verbosity(tf.logging.ERROR)
+
 import tensorflow_datasets as tfds
+
 import numpy as np
+from skimage.transform import resize
+from sklearn import preprocessing
+import random
 
-_checkpoint_path = "fine_tuning/pretrained_models/bisonai/1shot_3way_bisonai_ckpt_o15t/model.ckpt-99999"
+from fine_tuning.pretrained_models.bisonai.models import OmniglotModelBisonai
 
-def training_data(num_classes=3):
+def benchmark_mnist(num_classes,
+                num_data_per_class,
+                model_path,
+                epochs,
+                lr_range = [0.01, 0.001, 0.0001, 0.00001],
+                num_data_test = 1):
+
     sess = tf.Session()
 
-    mnist_train = tfds.load(name="mnist", split=tfds.Split.TRAIN)
-    mnist_train = mnist_train.shuffle(1024)
-    mnist_example = mnist_train.take(1000)
+    classes_names = random.sample(range(1, 10), num_classes)
+
+    mnist_train = tfds.load(name="mnist", split=tfds.Split.TRAIN).batch(num_classes*num_data_per_class*num_data_test+20000)
+    mnist_example = mnist_train.take(1)
     mnist_example_iter = mnist_example.make_initializable_iterator()
     sess.run(mnist_example_iter.initializer)
 
-    X_train = []
-    y_train = []
+    data = mnist_example_iter.get_next()
+    image = data['image']
+    label = data['label']
+    x, y = sess.run([image,label])
 
-    while len(y_train) != num_classes:
-        data = mnist_example_iter.get_next()
-        image = data['image']
-        label = data['label']
-        x, y = sess.run([image,label])
-        if y not in set(y_train):
-            X_train.append(x)
-            y_train.append(y)
-        if len(y_train) == num_classes:
+    X = []
+    Y = []
+    train_data_index = []
+    for i, item in enumerate(x):
+        if y[i] in classes_names and Y.count(y[i])<num_data_per_class:
+            Y.append(y[i])
+            X.append(item)
+            train_data_index.append(i)
+        if len(Y) == num_classes*num_data_per_class:
             break
 
-    X_train = np.array(X_train)
-    y_train = np.array(y_train)
+    X_train = np.array(1-np.array(X)/255.0).reshape(int(num_data_per_class*num_classes), 28, 28, 1)
+    y_train = np.array(Y)
 
-    min = -1
-    max = 1
-    scale = (max - min) / (X_train.max() - X_train.min())
-    X_train = scale * X_train + min - X_train.min() * scale
+    res = sum([np.where(y == c)[0].tolist() for c in y_train], [])
+    [res.remove(i) for i in train_data_index]
 
-    return  X_train, y_train
+    X = []
+    Y = []
+    for i in range(num_data_test):
+        ind = random.choice(res)
+        res.remove(ind)
+        Y.append(y[ind])
+        X.append(x[ind])
 
-def predict_data(y_train):
-    sess = tf.Session()
+    X_predict = np.array(1-np.array(X)/255.0).reshape(int(num_data_test), 28, 28, 1)
+    y_predict = np.array(Y)
 
-    mnist_test = tfds.load(name="mnist", split=tfds.Split.TEST)
-    mnist_test = mnist_test.shuffle(1024)
-    mnist_example = mnist_test.take(1000)
-    mnist_example_iter = mnist_example.make_initializable_iterator()
-    sess.run(mnist_example_iter.initializer)
+    le = preprocessing.LabelEncoder()
+    le.fit(y_train)
+    y_train_label = le.transform(y_train)
+    y_predict = le.transform(y_predict)
 
-    while True:
-        data = mnist_example_iter.get_next()
-        image = data['image']
-        label = data['label']
-        x, y = sess.run([image,label])
-        if y in set(y_train):
-            X_predict = x
-            y_predict = y
-            break
+    sess.close()
 
-    X_predict = np.array(X_predict).reshape(1, 28, 28, 1)
-    y_predict = np.array(y_predict)
-
-    min = -1
-    max = 1
-    scale = (max - min) / (X_predict.max() - X_predict.min())
-    X_predict = scale * X_predict + min - X_predict.min() * scale
-
-    return X_predict, y_predict
-
-def predict(X_train,
-            y_train,
-            X_predict,
-            epochs = 40,
-            num_classes=3):
-
-    sess = tf.Session()
-
-    model = OmniglotModelBisonai(num_classes=num_classes)
+    learning_rate = tf.placeholder(tf.float32)
+    model = OmniglotModelBisonai(num_classes=num_classes, **{"learning_rate": learning_rate})
     saver = tf.train.Saver()
-    saver.restore(sess, _checkpoint_path)
 
-    y_train_label = np.array([i for i in range(num_classes)])
+    loss_test = []
+    loss_train = []
 
-    for e in range(epochs):
-        sess.run(model.minimize_op, feed_dict={model.input_ph: X_train.reshape(X_train.shape[:3]), model.label_ph: y_train_label})
-    result = sess.run(model.predictions, feed_dict={model.input_ph: X_predict.reshape(X_predict.shape[:3])})
+    for lr in lr_range:
+        with tf.Session() as sess:
+            saver.restore(sess, model_path)
+            #sess.run(tf.global_variables_initializer())
+            loss_test_temp = []
+            loss_train_temp = []
+            for e in range(epochs):
+                loss = sess.run(model.loss, feed_dict={model.input_ph: X_train.reshape(X_train.shape[:3]), model.label_ph: y_train_label})
+                loss_train_temp.append(loss)
+                loss = sess.run(model.loss, feed_dict={model.input_ph: X_predict.reshape(X_predict.shape[:3]), model.label_ph: y_predict})
+                loss_test_temp.append(loss)
+                sess.run(model.minimize_op, feed_dict={model.input_ph: X_train.reshape(X_train.shape[:3]), model.label_ph:y_train_label, learning_rate: lr})
+            loss_test.append(loss_test_temp)
+            loss_train.append(loss_train_temp)
 
-    return y_train[result[0]]
+    return loss_train, loss_test
