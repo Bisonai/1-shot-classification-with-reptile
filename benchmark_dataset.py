@@ -65,12 +65,64 @@ def parse_mnist_data(num_classes,
     sess.close()
     return X_train, y_train_label, X_predict, y_predict
 
+def parse_omniglot_data(num_classes,
+            num_data_per_class,
+            num_data_test = 1):
+
+    classes_names = random.sample(range(1, 800), num_classes)
+
+    sess = tf.Session()
+    mnist_train = tfds.load(name="omniglot", split=tfds.Split.TRAIN).batch(num_classes*num_data_per_class*num_data_test+20000)
+    mnist_example = mnist_train.take(1)
+    mnist_example_iter = mnist_example.make_initializable_iterator()
+    sess.run(mnist_example_iter.initializer)
+
+    data = mnist_example_iter.get_next()
+    image = data['image']
+    label = data['label']
+    x, y = sess.run([image,label])
+
+    X = []
+    Y = []
+    train_data_index = []
+    for i, item in enumerate(x):
+        if y[i] in classes_names and Y.count(y[i])<num_data_per_class:
+            Y.append(y[i])
+            X.append(item)
+            train_data_index.append(i)
+        if len(Y) == num_classes*num_data_per_class:
+            break
+    X_train = resize(np.array(X)/255.0, (int(num_data_per_class*num_classes), 28, 28, 1))
+    y_train = np.array(Y)
+
+    res = sum([np.where(y == c)[0].tolist() for c in y_train], [])
+    [res.remove(i) for i in train_data_index]
+
+    X = []
+    Y = []
+    for i in range(num_data_test):
+        ind = random.choice(res)
+        res.remove(ind)
+        Y.append(y[ind])
+        X.append(x[ind])
+
+    X_predict = resize(np.array(X)/255.0, (int(num_data_test), 28, 28, 1))
+    y_predict = np.array(Y)
+
+    le = preprocessing.LabelEncoder()
+    le.fit(y_train)
+    y_train_label = le.transform(y_train)
+    y_predict = le.transform(y_predict)
+
+    sess.close()
+    return X_train, y_train_label, X_predict, y_predict
+
 def benchmark(num_classes,
                 num_data_per_class,
                 model_path,
                 dataset_name = "mnist",
                 epochs = 5,
-                lr_range = [0.01, 0.001, 0.0001, 0.00001],
+                lr_range = [0.01, 0.001, 0.0001],
                 num_data_train = 1,
                 num_data_test = 1):
 
@@ -78,10 +130,16 @@ def benchmark(num_classes,
     loss_train = []
     acc = []
 
-    data  = [parse_mnist_data(num_classes,
+    if dataset_name == "mnist":
+        data = [parse_mnist_data(num_classes,
                 num_data_per_class,
                 num_data_test)
-                for t in range(num_data_train)]
+                for _ in range(num_data_train)]
+    elif dataset_name == "omniglot":
+        data = [parse_omniglot_data(num_classes,
+                    num_data_per_class,
+                    num_data_test)
+                    for _ in range(num_data_train)]
 
     sess = tf.Session()
     learning_rate = tf.placeholder(tf.float32)
