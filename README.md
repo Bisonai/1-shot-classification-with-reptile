@@ -17,7 +17,9 @@ We characterized the performances of our pre-trained model by proceeding in mult
 
 ## Requirements
  * Python 3.6+
- * CVXPY 1.0
+ * Tensorflow
+ * skimage
+ * matplotlib
 
  ```shell
  pip install -r requirements.txt
