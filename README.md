@@ -4,10 +4,10 @@ Unofficial implementation of the meta-learning algorithm called [Reptile](https:
 
 This repository contains a pre-trained model with the Omniglot dataset using Reptile for three classes. We provide a test this pre-trained model on three different datasets (Omniglot, MNIST, Openai) with a 1-shot classification.
 
-We characterized the performances of our pre-trained model by proceeding in multiple 1-shot classification on both Omniglot and MNIST datasets. The results are in the following table (under construction).
+We characterized the performances of our pre-trained model by proceeding in multiple 1-shot classification on both Omniglot and MNIST datasets. The results are in the following table (under construction). The metric used for the loss is the [sparse softmax cross entropy](https://www.tensorflow.org/api_docs/python/tf/nn/sparse_softmax_cross_entropy_with_logits).
 
- | Dataset | learning rate | Average logloss train | Average logloss test |
- | ------- | ------------- | --------------------- | -------------------- |
+ | Dataset | learning rate | Average loss train | Average loss test |
+ | ------- | ------------- | ------------------ | ----------------- |
  | MNIST | 0.01 |  |  |
  | MNIST | 0.005 |  |  |
  | MNIST | 0.001 |  |  |
