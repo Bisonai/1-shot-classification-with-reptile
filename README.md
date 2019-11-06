@@ -6,7 +6,7 @@ This repository contains a 1-shot 3-way Reptile model pre-trained on [Omniglot](
 We provide simple demos ([Omniglot demo](https://github.com/Bisonai/1-shot-classification-with-Reptile/blob/master/demo_omniglot.ipynb), [MNIST demo](https://github.com/Bisonai/1-shot-classification-with-Reptile/blob/master/demo_mnist.ipynb) and [OpenAI demo](https://github.com/Bisonai/1-shot-classification-with-Reptile/blob/master/demo_openai.ipynb)) on three different datasets ([Omniglot](https://github.com/brendenlake/omniglot), [MNIST](http://yann.lecun.com/exdb/mnist/) and [OpenAI](https://github.com/Bisonai/1-shot-classification-with-Reptile/tree/master/data_examples/openai)).
 
 We characterized the performance of our pre-trained model by performing an evaluation on both [Omniglot](https://github.com/brendenlake/omniglot) and [MNIST](http://yann.lecun.com/exdb/mnist/) datasets with 1-shot 3-way settings.
-[Cross entropy loss]((https://www.tensorflow.org/api_docs/python/tf/nn/sparse_softmax_cross_entropy_with_logits) was used as an evaluation metric.
+[Cross entropy loss](https://www.tensorflow.org/api_docs/python/tf/nn/sparse_softmax_cross_entropy_with_logits) was used as an evaluation metric.
 The results can be found in the table below (under construction).
 
  | Dataset  | learning rate | Average loss train | Average loss test |
@@ -37,9 +37,9 @@ We provide Jupyter notebooks version of our demos.
 The learning rate and the number of epochs for the finetuning can be changed within Jupyter notebooks.
 We used three following datasets:
 
- - [Omniglot](https://github.com/brendenlake/omniglot): dataset was used to pre-train our model ([Jupyter notebook](https://github.com/Bisonai/1-shot-classification-with-Reptile/blob/master/demo_omniglot.ipynb))
- - [MNIST](http://yann.lecun.com/exdb/mnist/): dataset shows how our pre-trained model performs on previously unseen data ([Jupyter notebook](https://github.com/Bisonai/1-shot-classification-with-Reptile/blob/master/demo_mnist.ipynb))
- - [Openai](https://github.com/Bisonai/1-shot-classification-with-Reptile/tree/master/data_examples/openai): dataset was used in the original [blogpost](https://openai.com/blog/reptile/) from [OpenAI](https://openai.com) ([Jupyter notebook](https://github.com/Bisonai/1-shot-classification-with-Reptile/blob/master/demo_openai.ipynb))
+ - [Omniglot](https://github.com/brendenlake/omniglot) dataset was used to pre-train our model ([Jupyter notebook](https://github.com/Bisonai/1-shot-classification-with-Reptile/blob/master/demo_omniglot.ipynb))
+ - [MNIST](http://yann.lecun.com/exdb/mnist/) dataset shows how our pre-trained model performs on previously unseen data ([Jupyter notebook](https://github.com/Bisonai/1-shot-classification-with-Reptile/blob/master/demo_mnist.ipynb))
+ - [OpenAI](https://github.com/Bisonai/1-shot-classification-with-Reptile/tree/master/data_examples/openai) dataset was used in the original [blogpost](https://openai.com/blog/reptile/) from [OpenAI](https://openai.com) ([Jupyter notebook](https://github.com/Bisonai/1-shot-classification-with-Reptile/blob/master/demo_openai.ipynb))
 
 ## License
 
