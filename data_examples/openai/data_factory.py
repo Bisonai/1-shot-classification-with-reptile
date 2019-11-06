@@ -2,12 +2,13 @@ from PIL import Image
 from pathlib import Path
 import re
 
-from tensorflow.keras.utils import to_categorical
 import numpy as np
 
-def parse_train_data(path,
-                normalization=True):
 
+def parse_train_data(
+    path,
+    normalization=True,
+):
     path_train = Path(path + "/train").glob('**/*')
 
     X = []
@@ -24,7 +25,7 @@ def parse_train_data(path,
     X = np.array(X)
     y = np.array(y)
 
-    if  normalization == True:
+    if normalization is True:
         min = -1
         max = 1
         scale = (max - min) / (X.max() - X.min())
@@ -32,9 +33,11 @@ def parse_train_data(path,
 
     return X, y
 
-def parse_predict_data(path,
-                    normalization=True):
 
+def parse_predict_data(
+    path,
+    normalization=True,
+):
     paths = Path(path + "/predict").glob('**/*')
 
     X = []
@@ -47,7 +50,7 @@ def parse_predict_data(path,
 
     X = np.array(X)
 
-    if  normalization == True:
+    if normalization is True:
         min = -1
         max = 1
         scale = (max - min) / (X.max() - X.min())

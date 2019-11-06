@@ -27,5 +27,3 @@ class OmniglotModelBisonai:
                                                                    logits=self.logits)
         self.predictions = tf.argmax(self.logits, axis=-1)
         self.minimize_op = optimizer(**optim_kwargs).minimize(self.loss)
-
-        #self.custom_loss = tf.nn.softmax_cross_entropy_with_logits(labels=self.label_ph, logits= self.logits)
